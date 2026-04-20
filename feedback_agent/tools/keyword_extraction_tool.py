@@ -17,7 +17,13 @@ _nlp = None
 def _get_nlp():
     global _nlp
     if _nlp is None:
-        _nlp = spacy.load("en_core_web_sm")
+        try:
+            _nlp = spacy.load("en_core_web_sm")
+        except OSError as exc:
+            raise RuntimeError(
+                "spaCy model 'en_core_web_sm' is not installed. "
+                "Run: python -m spacy download en_core_web_sm"
+            ) from exc
     return _nlp
 
 
@@ -33,14 +39,17 @@ def extract_keywords(text: str) -> List[str]:
     Returns:
         List of keyword strings, e.g. ["product quality", "delivery time"].
     """
+    if not text or not text.strip():
+        return []
+
     nlp = _get_nlp()
     doc = nlp(text)
 
-    noun_chunks = [chunk.text.lower() for chunk in doc.noun_chunks if len(chunk.text) > 2]
+    noun_chunks = [chunk.text.lower().strip() for chunk in doc.noun_chunks if len(chunk.text.strip()) > 2]
     named_entities = [
-        ent.text.lower()
+        ent.text.lower().strip()
         for ent in doc.ents
-        if ent.label_ not in ("CARDINAL", "ORDINAL", "DATE", "TIME")
+        if ent.label_ not in ("CARDINAL", "ORDINAL", "DATE", "TIME") and len(ent.text.strip()) > 2
     ]
 
     # Deduplicer og bevar rækkefølge

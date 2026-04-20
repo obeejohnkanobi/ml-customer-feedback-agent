@@ -59,4 +59,14 @@ feedback_store: List[Feedback] = [
 def query_feedback() -> List[Feedback]:
     """Read all customer feedback from the feedback store.
     Returns a list of feedback items, each with id, text, and source."""
-    return feedback_store
+    valid_sources = {"email", "chat", "survey"}
+    sanitized: List[Feedback] = []
+
+    for item in feedback_store:
+        if not item.get("id") or not item.get("text"):
+            continue
+        if item.get("source") not in valid_sources:
+            continue
+        sanitized.append({"id": item["id"], "text": item["text"], "source": item["source"]})
+
+    return sanitized

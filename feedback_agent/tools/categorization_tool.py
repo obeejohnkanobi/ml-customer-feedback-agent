@@ -48,12 +48,21 @@ def categorize_feedback(keywords: List[str]) -> List[str]:
     Returns:
         List of matched category names, e.g. ["Product Quality", "Delivery & Shipping"].
     """
-    keywords_lower = {kw.lower() for kw in keywords}
+    if not keywords:
+        return ["General"]
+
+    normalized_keywords = {kw.lower().strip() for kw in keywords if kw and kw.strip()}
+    if not normalized_keywords:
+        return ["General"]
 
     matched: List[str] = [
         category
         for category, category_kws in CATEGORY_KEYWORDS.items()
-        if any(kw in keywords_lower for kw in category_kws)
+        if any(
+            category_kw in input_kw or input_kw in category_kw
+            for category_kw in category_kws
+            for input_kw in normalized_keywords
+        )
     ]
 
     return matched if matched else ["General"]
