@@ -1,4 +1,16 @@
-.cache
-__pycache__
+# Python cache / bytecode
+__pycache__/
+*.py[cod]
 
-config.py
+# Virtual environment
+.venv/
+
+# Test / tooling cache
+.cache/
+.pytest_cache/
+
+# IDE
+.idea/
+
+# Local environment secrets
+.env
